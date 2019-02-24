@@ -1,0 +1,11 @@
+// ======================================== CREATIVETABS ===================================== //
+itemGroup.schr0damascusmob.item=DamascusMob : Items
+
+// ======================================== ITEM ===================================== //
+item.damascus_steel.name=Damascus Steel
+
+// ======================================== ENTITY ===================================== //
+entity.damascus.name=Damascus
+
+// ======================================== DAMAGESOURCE ===================================== //
+death.attack.schr0damascusmob.miasma=%1$s was killed by miasma

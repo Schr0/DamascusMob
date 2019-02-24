@@ -1,0 +1,16 @@
+[
+{
+  "modid": "schr0damascusmob",
+  "name": "DamascusDragon",
+  "description": "",
+  "version": "1.0.0",
+  "mcversion": "",
+  "url": "http://forum.minecraftuser.jp/viewtopic.php?f=13&t=5376",
+  "updateUrl": "",
+  "authorList": ["Schr0"],
+  "credits": "",
+  "logoFile": "assets/schr0damascusmob/logo.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]
