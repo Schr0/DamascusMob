@@ -1,0 +1,7 @@
+{
+	"parent": "item/handheld",
+	"textures":
+	{
+		"layer0": "schr0damascusmob:items/damascus_rod"
+	}
+}

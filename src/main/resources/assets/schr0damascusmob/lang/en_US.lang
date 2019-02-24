@@ -3,6 +3,7 @@ itemGroup.schr0damascusmob.item=DamascusMob : Items
 
 // ======================================== ITEM ===================================== //
 item.damascus_steel.name=Damascus Steel
+item.damascus_rod.name=Damascus Rod
 
 // ======================================== ENTITY ===================================== //
 entity.damascus.name=Damascus

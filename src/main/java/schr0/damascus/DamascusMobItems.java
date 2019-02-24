@@ -19,23 +19,28 @@ public class DamascusMobItems
 {
 
 	public static final Item DAMASCUS_STEEL;
+	public static final Item DAMASCUS_ROD;
 
 	public static final String NAME_DAMASCUS_STEEL = "damascus_steel";
+	public static final String NAME_DAMASCUS_ROD = "damascus_rod";
 
 	static
 	{
 		DAMASCUS_STEEL = new ItemDamascusSteel().setUnlocalizedName(NAME_DAMASCUS_STEEL).setCreativeTab(DamascusMobCreativeTabs.ITEM);
+		DAMASCUS_ROD = new ItemDamascusRod().setUnlocalizedName(NAME_DAMASCUS_ROD).setCreativeTab(DamascusMobCreativeTabs.ITEM);
 	}
 
 	public void registerItems(IForgeRegistry<Item> registry)
 	{
 		registerItem(registry, DAMASCUS_STEEL, NAME_DAMASCUS_STEEL);
+		registerItem(registry, DAMASCUS_ROD, NAME_DAMASCUS_ROD);
 	}
 
 	@SideOnly(Side.CLIENT)
 	public void registerModels()
 	{
 		registerModel(DAMASCUS_STEEL);
+		registerModel(DAMASCUS_ROD);
 	}
 
 	// TODO /* ======================================== MOD START =====================================*/

@@ -556,9 +556,9 @@ public class ModelDamascus extends ModelBase
 			return;
 		}
 
-		this.initModelsRotate();
-
 		EntityDamascus damascus = (EntityDamascus) entityIn;
+
+		this.initModelsRotate();
 		float srcHeadAngleX = this.head.rotateAngleX;
 		float srcHipAngleX = this.hip.rotateAngleX;
 		float srcBodyAngleX = this.body.rotateAngleX;
@@ -577,6 +577,11 @@ public class ModelDamascus extends ModelBase
 		this.armR1.rotateAngleZ = (livingMotion + srcArmR1AngleZ);
 		this.armL1.rotateAngleZ = (-livingMotion + srcArmL1AngleZ);
 
+		for (ModelRenderer tailModel : this.tailModels)
+		{
+			tailModel.rotateAngleY = livingMotion;
+		}
+
 		this.head.rotateAngleX = (headPitch * 0.018F) + srcHeadAngleX;
 		this.head.rotateAngleY = (netHeadYaw * 0.018F);
 
@@ -594,11 +599,6 @@ public class ModelDamascus extends ModelBase
 			this.legL2.rotateAngleX = (MathHelper.cos(limbSwing * 0.25F + (float) Math.PI) * (0.5F * limbSwingAmount)) + srcLeg2AngleX;
 			this.legL3.rotateAngleX = -(MathHelper.cos(limbSwing * 0.25F + (float) Math.PI) * (0.3F * limbSwingAmount)) + srcLeg3AngleX;
 			this.feetL.rotateAngleX = -(MathHelper.cos(limbSwing * 0.25F + (float) Math.PI) * (0.7F * limbSwingAmount)) + srcfeetAngleX;
-		}
-
-		for (ModelRenderer tailModel : this.tailModels)
-		{
-			tailModel.rotateAngleY = livingMotion;
 		}
 
 		if (damascus.getActionStatus() == ActionStatus.ROAR)
@@ -726,10 +726,8 @@ public class ModelDamascus extends ModelBase
 			float flyingLeg3AngleX = 0.5235987755982988F;
 			float flyingTailsAngleX = -0.25F;
 
-			this.armR1.rotateAngleZ = (MathHelper.cos(ageInTicks * 0.3F) * 0.40F) + flyingArmRAngleZ;
-			this.armR2.rotateAngleZ = (MathHelper.cos(ageInTicks * 0.3F) * 0.405F);
-			this.armL1.rotateAngleZ = -(MathHelper.cos(ageInTicks * 0.3F) * 0.40F) + flyingArmLAngleZ;
-			this.armL2.rotateAngleZ = -(MathHelper.cos(ageInTicks * 0.3F) * 0.405F);
+			this.armR1.rotateAngleZ = (MathHelper.cos(ageInTicks * 0.30F) * 0.40F) + flyingArmRAngleZ;
+			this.armL1.rotateAngleZ = -(MathHelper.cos(ageInTicks * 0.30F) * 0.40F) + flyingArmLAngleZ;
 
 			this.legR1.rotateAngleY = flyingLegR1AngleY;
 			this.legL1.rotateAngleY = flyingLegL1AngleY;
@@ -740,6 +738,23 @@ public class ModelDamascus extends ModelBase
 			for (ModelRenderer tailModel : this.tailModels)
 			{
 				tailModel.rotateAngleX = (livingMotion + flyingTailsAngleX);
+				tailModel.rotateAngleY = 0.0F;
+			}
+		}
+
+		if (damascus.isOwnerAttacking())
+		{
+			float ownerAttackingHeadTopAngleX = -0.17453292519943295F;
+			float ownerAttackingJawAngleX = 0.9599310885968813F;
+
+			this.headTop.rotateAngleX = ownerAttackingHeadTopAngleX;
+			this.jaw.rotateAngleX = ownerAttackingJawAngleX;
+
+			float ownerAttackingTailsAngleX = 0.25F;
+
+			for (ModelRenderer tailModel : this.tailModels)
+			{
+				tailModel.rotateAngleX = (livingMotion + ownerAttackingTailsAngleX);
 				tailModel.rotateAngleY = 0.0F;
 			}
 		}

@@ -20,6 +20,7 @@ import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
@@ -47,9 +48,9 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	private static final double ENTITY_ATTACK_DAMAGE = 8.0D;
 	private static final int LIMIT_HUNGER_AMOUNT = 64;
 	private static final int LIMIT_ANGER_AMOUNT = 20;
-	private static final int LIMIT_SLEEP_TIMER = ((60 * 2) * 20);
+	private static final int LIMIT_SLEEP_TIMER = ((1 * 60) * 20);
 	private static final int LIMIT_ROAR_TIMER = (10 * 20);
-	private static final int LIMIT_COOLDOWN_TIMER = ((60 * 1) * 20);
+	private static final int LIMIT_COOLDOWN_TIMER = ((1 * 60) * 20);
 
 	private static final DataParameter<Byte> AI_STATUS = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
 	private static final DataParameter<Byte> ATTACK_TYPE = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
@@ -262,6 +263,8 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		EntityDamascusFireball entityDamascusFireball = new EntityDamascusFireball(this.world, this, spawnPosX, spawnPosY, spawnPosZ, accelerationX, accelerationY, accelerationZ);
 
 		this.world.spawnEntity(entityDamascusFireball);
+
+		this.world.playEvent((EntityPlayer) null, 1016, this.getPosition(), 0);
 	}
 
 	@Override
@@ -505,17 +508,29 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		{
 			if (isServerWorld)
 			{
-				if (!ForgeEventFactory.onAnimalTame(this, player))
+				if (stackHeldItem.getItem() instanceof ItemBlock)
 				{
-					this.setTamedBy(player);
-					this.navigator.clearPath();
-					this.playTameEffect(true);
-					this.world.setEntityState(this, (byte) 7);
-				}
-				else
-				{
-					this.playTameEffect(false);
-					this.world.setEntityState(this, (byte) 6);
+					ItemBlock itemBlock = (ItemBlock) stackHeldItem.getItem();
+					EatableOre eatableBlockOre = EatableOre.byBlock(itemBlock.getBlock());
+
+					if (eatableBlockOre != EatableOre.NONE)
+					{
+						boolean success = (this.getRNG().nextInt(19 - eatableBlockOre.getFoodLevel()) == 0);
+
+						if (success && !ForgeEventFactory.onAnimalTame(this, player))
+						{
+							this.setTamedBy(player);
+							this.navigator.clearPath();
+							this.playTameEffect(true);
+							this.world.setEntityState(this, (byte) 7);
+						}
+						else
+						{
+							this.playTameEffect(false);
+							this.world.setEntityState(this, (byte) 6);
+						}
+
+					}
 				}
 			}
 
@@ -574,16 +589,21 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 						this.resetAngerAmount();
 					}
 				}
-			}
 
-			if (this.isFlying() && (this.ticksExisted % 10 == 0))
-			{
-				this.playSound(SoundEvents.ENTITY_ENDERDRAGON_FLAP, 0.25F, 1.0F);
-			}
-
-			if (this.isAnger())
-			{
 				DamascusMobParticles.spawnParticleAngerAura(this);
+			}
+
+			if (this.isFlying())
+			{
+				if (this.ticksExisted % 10 == 0)
+				{
+					this.playSound(SoundEvents.ENTITY_ENDERDRAGON_FLAP, 0.25F, 1.0F);
+				}
+			}
+
+			if (this.isOwnerAttacking())
+			{
+				DamascusMobParticles.spawnParticleRangedAttacking(this);
 			}
 		}
 	}
@@ -921,6 +941,16 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		if (this.isAnger() || (this.getActionStatus() == ActionStatus.SLEEP))
 		{
 			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isOwnerAttacking()
+	{
+		if (this.isRaidingOnwer())
+		{
+			return (this.getOwner().getActiveItemStack().getItem() == DamascusMobItems.DAMASCUS_ROD);
 		}
 
 		return false;
