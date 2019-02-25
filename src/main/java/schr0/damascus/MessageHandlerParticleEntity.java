@@ -94,9 +94,10 @@ public class MessageHandlerParticleEntity implements IMessageHandler<MessagePart
 		double randY = random.nextGaussian() * 0.02D;
 		double randZ = random.nextGaussian() * 0.02D;
 
-		if (random.nextInt(2) == 0)
+		if (random.nextInt(5) == 0)
 		{
 			world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, spawnPosX, spawnPosY, spawnPosZ, randX, randY, randZ, new int[0]);
+			world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, spawnPosX, spawnPosY, spawnPosZ, randX, randY, randZ, new int[0]);
 		}
 	}
 

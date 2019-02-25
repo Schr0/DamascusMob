@@ -62,6 +62,8 @@ public class EntityDamascusAISleep extends EntityDamascusAI
 			{
 				this.getAIOwner().setActionStatus(ActionStatus.IDLE);
 
+				this.getAIOwner().resetHugerAmount();
+
 				// TODO
 
 				return;

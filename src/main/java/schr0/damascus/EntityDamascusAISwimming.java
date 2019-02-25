@@ -1,28 +1,33 @@
 package schr0.damascus;
 
-public class EntityDamascusAISwimming extends EntityDamascusAI
+import net.minecraft.entity.ai.EntityAISwimming;
+
+public class EntityDamascusAISwimming extends EntityAISwimming
 {
+
+	private final EntityDamascus entityDamascus;
 
 	public EntityDamascusAISwimming(EntityDamascus entityDamascus)
 	{
 		super(entityDamascus);
+
+		this.entityDamascus = entityDamascus;
 	}
 
 	@Override
-	public boolean shouldExecute()
+	public void resetTask()
 	{
-		return this.getAIOwner().isSwimming();
+		super.resetTask();
+
+		this.entityDamascus.setActionStatus(ActionStatus.IDLE);
 	}
 
 	@Override
 	public void updateTask()
 	{
-		this.getAIOwner().setActionStatus(ActionStatus.SWIM);
+		this.entityDamascus.setActionStatus(ActionStatus.SWIM);
 
-		if (this.getAIOwner().getRNG().nextFloat() < 0.8F)
-		{
-			this.getAIOwner().getJumpHelper().setJumping();
-		}
+		super.updateTask();
 	}
 
 }
