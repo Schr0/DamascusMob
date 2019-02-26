@@ -58,13 +58,29 @@ public class EntityDamascusAISleep extends EntityDamascusAI
 
 			this.getAIOwner().shrinkSleepTimer(1);
 
-			if (!this.getAIOwner().isSleepTime())
+			if (this.getAIOwner().isSleepTime())
 			{
-				this.getAIOwner().setActionStatus(ActionStatus.IDLE);
-
+				// none
+			}
+			else
+			{
 				this.getAIOwner().resetHugerAmount();
 
 				// TODO
+				/*
+								EntityDamascus entityDamascus = new EntityDamascus(this.getWorld());
+								NBTTagCompound nbt = new NBTTagCompound();
+				
+								this.getAIOwner().writeEntityToNBT(nbt);
+								entityDamascus.readEntityFromNBT(nbt);
+				
+								entityDamascus.setPositionAndRotation(this.getAIOwner().posX, this.getAIOwner().posY, this.getAIOwner().posZ, this.getAIOwner().rotationYaw, this.getAIOwner().rotationPitch);
+								entityDamascus.setActionStatus(ActionStatus.SLEEP);
+								entityDamascus.setNoAI(true);
+								entityDamascus.setEntityInvulnerable(true);
+				
+								this.getWorld().spawnEntity(entityDamascus);
+				*/
 
 				return;
 			}

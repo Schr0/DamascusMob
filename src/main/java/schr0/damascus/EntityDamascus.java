@@ -37,6 +37,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.fml.common.FMLLog;
 
 public class EntityDamascus extends EntityTameable implements IDamascusMob, IRangedAttackMob, IJumpingMount
 {
@@ -48,7 +49,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	private static final double ENTITY_ATTACK_DAMAGE = 8.0D;
 	private static final int LIMIT_HUNGER_AMOUNT = 64;
 	private static final int LIMIT_ANGER_AMOUNT = 20;
-	private static final int LIMIT_SLEEP_TIMER = ((1 * 60) * 20);
+	private static final int LIMIT_SLEEP_TIMER = 3 * 20;// ((1 * 60) * 20);
 	private static final int LIMIT_ROAR_TIMER = (10 * 20);
 	private static final int LIMIT_COOLDOWN_TIMER = ((1 * 60) * 20);
 
@@ -168,7 +169,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	@Override
 	protected float getSoundVolume()
 	{
-		return 0.85F;
+		return 0.35F;
 	}
 
 	@Override
@@ -515,7 +516,9 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 
 					if (eatableBlockOre != EatableOre.NONE)
 					{
-						boolean success = (this.getRNG().nextInt(19 - eatableBlockOre.getFoodLevel()) == 0);
+						boolean success = (this.getRNG().nextInt(18 - eatableBlockOre.getFoodLevel()) == 0);
+
+						this.growHugerAmount(eatableBlockOre.getFoodLevel());
 
 						if (success && !ForgeEventFactory.onAnimalTame(this, player))
 						{
@@ -529,7 +532,6 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 							this.playTameEffect(false);
 							this.world.setEntityState(this, (byte) 6);
 						}
-
 					}
 				}
 			}
@@ -572,6 +574,8 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 
 		if (!this.getEntityWorld().isRemote)
 		{
+			FMLLog.info("Status : %d", this.getActionStatus().getNumber());
+
 			if (this.isAnger())
 			{
 				if (this.getAttackTarget() != null)

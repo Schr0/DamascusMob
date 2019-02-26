@@ -17,11 +17,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ModelDamascus extends ModelBase
 {
 
-	private static final int WIDTH = 256;
-	private static final int HEIGHT = 256;
-	private List<ModelRenderer> neckModels = Lists.<ModelRenderer> newArrayList();
-	private List<ModelRenderer> tailModels = Lists.<ModelRenderer> newArrayList();
-
+	public static final int WIDTH = 256;
+	public static final int HEIGHT = 256;
+	public List<ModelRenderer> neckModels = Lists.<ModelRenderer> newArrayList();
+	public List<ModelRenderer> tailModels = Lists.<ModelRenderer> newArrayList();
 	public ModelRenderer armL1;
 	public ModelRenderer armL2;
 	public ModelRenderer armL3;
@@ -762,14 +761,7 @@ public class ModelDamascus extends ModelBase
 
 	// TODO /* ======================================== MOD START =====================================*/
 
-	private void setRotateAngleXYZ(ModelRenderer modelRenderer, float x, float y, float z)
-	{
-		modelRenderer.rotateAngleX = x;
-		modelRenderer.rotateAngleY = y;
-		modelRenderer.rotateAngleZ = z;
-	}
-
-	private void initModelsRotate()
+	public void initModelsRotate()
 	{
 		this.armL1.setRotationPoint(4.0F, -2.0F, 0.0F);
 		this.armL2.setRotationPoint(0.0F, 6.0F, 0.0F);
@@ -891,6 +883,13 @@ public class ModelDamascus extends ModelBase
 		this.setRotateAngleXYZ(legR2, 0.39269908169872414F, 0.0F, 0.0F);
 		this.setRotateAngleXYZ(legR3, -0.24434609527920614F, 0.0F, 0.0F);
 		this.setRotateAngleXYZ(shoulder, -0.2617993877991494F, 0.0F, 0.0F);
+	}
+
+	private void setRotateAngleXYZ(ModelRenderer modelRenderer, float x, float y, float z)
+	{
+		modelRenderer.rotateAngleX = x;
+		modelRenderer.rotateAngleY = y;
+		modelRenderer.rotateAngleZ = z;
 	}
 
 }
