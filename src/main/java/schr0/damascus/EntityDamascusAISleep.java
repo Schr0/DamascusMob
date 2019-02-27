@@ -66,21 +66,7 @@ public class EntityDamascusAISleep extends EntityDamascusAI
 			{
 				this.getAIOwner().resetHugerAmount();
 
-				// TODO
-				/*
-								EntityDamascus entityDamascus = new EntityDamascus(this.getWorld());
-								NBTTagCompound nbt = new NBTTagCompound();
-				
-								this.getAIOwner().writeEntityToNBT(nbt);
-								entityDamascus.readEntityFromNBT(nbt);
-				
-								entityDamascus.setPositionAndRotation(this.getAIOwner().posX, this.getAIOwner().posY, this.getAIOwner().posZ, this.getAIOwner().rotationYaw, this.getAIOwner().rotationPitch);
-								entityDamascus.setActionStatus(ActionStatus.SLEEP);
-								entityDamascus.setNoAI(true);
-								entityDamascus.setEntityInvulnerable(true);
-				
-								this.getWorld().spawnEntity(entityDamascus);
-				*/
+				this.getWorld().spawnEntity(this.getAIOwner().getEmptyShell());
 
 				return;
 			}

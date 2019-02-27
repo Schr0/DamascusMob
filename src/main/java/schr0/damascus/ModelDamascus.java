@@ -571,6 +571,26 @@ public class ModelDamascus extends ModelBase
 		float srcfeetAngleX = this.feetR.rotateAngleX;
 		float livingMotion = MathHelper.cos(ageInTicks * 0.015F * (float) Math.PI) * (0.015F * (float) Math.PI);
 
+		if (damascus.isEmptyShell())
+		{
+			float emptyShellUpperBodyAngleX = 0.15F;
+			float emptyShellArmRAngleZ = 0.65F;
+			float emptyShellArmLAngleZ = -emptyShellArmRAngleZ;
+
+			this.body.rotateAngleX = (emptyShellUpperBodyAngleX + srcBodyAngleX);
+			this.shoulder.rotateAngleX = (emptyShellUpperBodyAngleX + srcShoulderAngleX);
+
+			for (ModelRenderer neckModel : this.neckModels)
+			{
+				neckModel.rotateAngleX = emptyShellUpperBodyAngleX;
+			}
+
+			this.armR1.rotateAngleZ = emptyShellArmRAngleZ;
+			this.armL1.rotateAngleZ = emptyShellArmLAngleZ;
+
+			return;
+		}
+
 		this.headTop.rotateAngleX = -livingMotion;
 		this.jaw.rotateAngleX = livingMotion;
 		this.armR1.rotateAngleZ = (livingMotion + srcArmR1AngleZ);

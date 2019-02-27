@@ -53,13 +53,14 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	private static final int LIMIT_ROAR_TIMER = (10 * 20);
 	private static final int LIMIT_COOLDOWN_TIMER = ((1 * 60) * 20);
 
-	private static final DataParameter<Byte> AI_STATUS = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
+	private static final DataParameter<Byte> ACTION_STATUS = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
 	private static final DataParameter<Byte> ATTACK_TYPE = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
 	private static final DataParameter<Integer> ANGER_AMOUNT = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> HUNGER_AMOUNT = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> SLEEP_TIMER = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> ROAR_TIMER = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> COOLDOWN_TIMER = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
+	private static final DataParameter<Byte> EMPTY_SHELL = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
 
 	private static final String TAG = DamascusMob.MOD_ID + ".";
 	private static final String TAG_ANGER_AMOUNT = TAG + "anger_amount";
@@ -67,6 +68,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	private static final String TAG_SLEEP_TIMER = TAG + "sleep_timer";
 	private static final String TAG_ROAR_TIMER = TAG + "roar_timer";
 	private static final String TAG_COOLDOWN_TIMER = TAG + "cooldown_timer";
+	private static final String TAG_EMPTY_SHELL = TAG + "cooldown_timer";
 
 	private boolean isRidingJump;
 	private float ridingJumpPower;
@@ -90,13 +92,14 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	{
 		super.entityInit();
 
-		this.getDataManager().register(AI_STATUS, Byte.valueOf((byte) 0));
+		this.getDataManager().register(ACTION_STATUS, Byte.valueOf((byte) 0));
 		this.getDataManager().register(ATTACK_TYPE, Byte.valueOf((byte) 0));
 		this.getDataManager().register(ANGER_AMOUNT, Integer.valueOf(0));
 		this.getDataManager().register(HUNGER_AMOUNT, Integer.valueOf(0));
 		this.getDataManager().register(SLEEP_TIMER, Integer.valueOf(0));
 		this.getDataManager().register(ROAR_TIMER, Integer.valueOf(0));
 		this.getDataManager().register(COOLDOWN_TIMER, Integer.valueOf(0));
+		this.getDataManager().register(EMPTY_SHELL, Byte.valueOf((byte) 0));
 	}
 
 	@Override
@@ -152,6 +155,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		compound.setInteger(TAG_SLEEP_TIMER, this.getSleepTimer());
 		compound.setInteger(TAG_ROAR_TIMER, this.getRoarTimer());
 		compound.setInteger(TAG_COOLDOWN_TIMER, this.getCooldownTimer());
+		compound.setBoolean(TAG_EMPTY_SHELL, this.isEmptyShell());
 	}
 
 	@Override
@@ -164,6 +168,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		this.setSleepTimer(compound.getInteger(TAG_SLEEP_TIMER));
 		this.setRoarTimer(compound.getInteger(TAG_ROAR_TIMER));
 		this.setCooldownTimer(compound.getInteger(TAG_COOLDOWN_TIMER));
+		this.setEmptyShell(compound.getBoolean(TAG_EMPTY_SHELL));
 	}
 
 	@Override
@@ -277,7 +282,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	@Override
 	public boolean isEntityInvulnerable(DamageSource source)
 	{
-		return (super.isEntityInvulnerable(source) || source.isExplosion() || (this.getActionStatus() == ActionStatus.ROAR));
+		return (super.isEntityInvulnerable(source) || source.isExplosion() || (this.getActionStatus() == ActionStatus.ROAR) || this.isEmptyShell());
 	}
 
 	@Override
@@ -478,7 +483,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	@Override
 	public boolean processInteract(EntityPlayer player, EnumHand hand)
 	{
-		if ((hand == EnumHand.OFF_HAND) || this.isAnger() || (this.getActionStatus() == ActionStatus.ATTACK) || (this.getActionStatus() == ActionStatus.SLEEP) || (this.getActionStatus() == ActionStatus.EAT))
+		if ((hand == EnumHand.OFF_HAND) || this.isAnger() || this.isEmptyShell() || (this.getActionStatus() == ActionStatus.ATTACK) || (this.getActionStatus() == ActionStatus.SLEEP) || (this.getActionStatus() == ActionStatus.EAT))
 		{
 			return false;
 		}
@@ -616,7 +621,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 
 	public ActionStatus getActionStatus()
 	{
-		int number = (int) this.getDataManager().get(AI_STATUS).byteValue();
+		int number = (int) this.getDataManager().get(ACTION_STATUS).byteValue();
 
 		return ActionStatus.byNumber(number);
 	}
@@ -627,48 +632,48 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		{
 			case SWIM :
 
-				this.getDataManager().set(AI_STATUS, Byte.valueOf((byte) actionStatus.SWIM.getNumber()));
+				this.getDataManager().set(ACTION_STATUS, Byte.valueOf((byte) actionStatus.SWIM.getNumber()));
 
 				break;
 
 			case ROAR :
 
-				this.getDataManager().set(AI_STATUS, Byte.valueOf((byte) actionStatus.ROAR.getNumber()));
+				this.getDataManager().set(ACTION_STATUS, Byte.valueOf((byte) actionStatus.ROAR.getNumber()));
 
 				break;
 
 			case SLEEP :
 
-				this.getDataManager().set(AI_STATUS, Byte.valueOf((byte) actionStatus.SLEEP.getNumber()));
+				this.getDataManager().set(ACTION_STATUS, Byte.valueOf((byte) actionStatus.SLEEP.getNumber()));
 
 				break;
 			case EAT :
 
-				this.getDataManager().set(AI_STATUS, Byte.valueOf((byte) actionStatus.EAT.getNumber()));
+				this.getDataManager().set(ACTION_STATUS, Byte.valueOf((byte) actionStatus.EAT.getNumber()));
 
 				break;
 
 			case ATTACK :
 
-				this.getDataManager().set(AI_STATUS, Byte.valueOf((byte) actionStatus.ATTACK.getNumber()));
+				this.getDataManager().set(ACTION_STATUS, Byte.valueOf((byte) actionStatus.ATTACK.getNumber()));
 
 				break;
 
 			case WONDER :
 
-				this.getDataManager().set(AI_STATUS, Byte.valueOf((byte) actionStatus.WONDER.getNumber()));
+				this.getDataManager().set(ACTION_STATUS, Byte.valueOf((byte) actionStatus.WONDER.getNumber()));
 
 				break;
 
 			case WATCH_CLOSEST :
 
-				this.getDataManager().set(AI_STATUS, Byte.valueOf((byte) actionStatus.WATCH_CLOSEST.getNumber()));
+				this.getDataManager().set(ACTION_STATUS, Byte.valueOf((byte) actionStatus.WATCH_CLOSEST.getNumber()));
 
 				break;
 
 			default :
 
-				this.getDataManager().set(AI_STATUS, Byte.valueOf((byte) actionStatus.IDLE.getNumber()));
+				this.getDataManager().set(ACTION_STATUS, Byte.valueOf((byte) actionStatus.IDLE.getNumber()));
 
 				break;
 		}
@@ -878,6 +883,42 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	public void shrinkCooldownTimer(int amount)
 	{
 		this.setCooldownTimer(this.getCooldownTimer() - amount);
+	}
+
+	public boolean isEmptyShell()
+	{
+		return (this.getDataManager().get(EMPTY_SHELL).byteValue() == 1);
+	}
+
+	public void setEmptyShell(boolean isEmptyShell)
+	{
+		byte b0 = ((Byte) this.getDataManager().get(EMPTY_SHELL)).byteValue();
+
+		if (isEmptyShell)
+		{
+			this.getDataManager().set(EMPTY_SHELL, Byte.valueOf((byte) 1));
+		}
+		else
+		{
+			this.getDataManager().set(EMPTY_SHELL, Byte.valueOf((byte) 0));
+		}
+	}
+
+	public EntityDamascus getEmptyShell()
+	{
+		EntityDamascus emptyShell = new EntityDamascus(this.getEntityWorld());
+		NBTTagCompound nbt = new NBTTagCompound();
+
+		this.writeEntityToNBT(nbt);
+		emptyShell.readEntityFromNBT(nbt);
+
+		emptyShell.setEmptyShell(true);
+		emptyShell.setNoAI(true);
+		emptyShell.setSilent(true);
+
+		emptyShell.setPositionAndRotation(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
+
+		return emptyShell;
 	}
 
 	// TODO /* ======================================== MOD START =====================================*/

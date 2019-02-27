@@ -13,6 +13,7 @@ public class RenderDamascus extends RenderLiving<EntityDamascus>
 
 	private static final ResourceLocation RES_ENTITY = new ResourceLocation(DamascusMob.MOD_RESOURCE_DOMAIN + "textures/entity/damascus.png");
 	private static final ResourceLocation RES_ENTITY_ANGER = new ResourceLocation(DamascusMob.MOD_RESOURCE_DOMAIN + "textures/entity/damascus_anger.png");
+	private static final ResourceLocation RES_EMPTYSHELL = new ResourceLocation(DamascusMob.MOD_RESOURCE_DOMAIN + "textures/entity/damascus_emptyshell.png");
 
 	public RenderDamascus(RenderManager renderManagerIn, ModelBase modelBaseIn, float shadowSizeIn)
 	{
@@ -22,6 +23,11 @@ public class RenderDamascus extends RenderLiving<EntityDamascus>
 	@Override
 	protected ResourceLocation getEntityTexture(EntityDamascus entity)
 	{
+		if (entity.isEmptyShell())
+		{
+			return RES_EMPTYSHELL;
+		}
+
 		if (entity.isAnger())
 		{
 			return RES_ENTITY_ANGER;
