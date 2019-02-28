@@ -29,6 +29,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
@@ -49,9 +50,10 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	private static final double ENTITY_ATTACK_DAMAGE = 8.0D;
 	private static final int LIMIT_HUNGER_AMOUNT = 64;
 	private static final int LIMIT_ANGER_AMOUNT = 20;
-	private static final int LIMIT_SLEEP_TIMER = 3 * 20;// ((1 * 60) * 20);
+	private static final int LIMIT_SLEEP_TIMER = ((1 * 60) * 20);
 	private static final int LIMIT_ROAR_TIMER = (10 * 20);
 	private static final int LIMIT_COOLDOWN_TIMER = ((1 * 60) * 20);
+	private static final int LIMIT_EMPTY_SHELL_DAMAGE = 5;
 
 	private static final DataParameter<Byte> ACTION_STATUS = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
 	private static final DataParameter<Byte> ATTACK_TYPE = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
@@ -61,6 +63,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	private static final DataParameter<Integer> ROAR_TIMER = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> COOLDOWN_TIMER = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 	private static final DataParameter<Byte> EMPTY_SHELL = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
+	private static final DataParameter<Integer> EMPTY_SHELL_DAMAGE = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 
 	private static final String TAG = DamascusMob.MOD_ID + ".";
 	private static final String TAG_ANGER_AMOUNT = TAG + "anger_amount";
@@ -68,7 +71,8 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	private static final String TAG_SLEEP_TIMER = TAG + "sleep_timer";
 	private static final String TAG_ROAR_TIMER = TAG + "roar_timer";
 	private static final String TAG_COOLDOWN_TIMER = TAG + "cooldown_timer";
-	private static final String TAG_EMPTY_SHELL = TAG + "cooldown_timer";
+	private static final String TAG_EMPTY_SHELL = TAG + "empty_shell";
+	private static final String TAG_EMPTY_SHELL_DAMAGE = TAG + "empty_shell_damage";
 
 	private boolean isRidingJump;
 	private float ridingJumpPower;
@@ -100,6 +104,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		this.getDataManager().register(ROAR_TIMER, Integer.valueOf(0));
 		this.getDataManager().register(COOLDOWN_TIMER, Integer.valueOf(0));
 		this.getDataManager().register(EMPTY_SHELL, Byte.valueOf((byte) 0));
+		this.getDataManager().register(EMPTY_SHELL_DAMAGE, Integer.valueOf(0));
 	}
 
 	@Override
@@ -156,6 +161,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		compound.setInteger(TAG_ROAR_TIMER, this.getRoarTimer());
 		compound.setInteger(TAG_COOLDOWN_TIMER, this.getCooldownTimer());
 		compound.setBoolean(TAG_EMPTY_SHELL, this.isEmptyShell());
+		compound.setInteger(TAG_EMPTY_SHELL_DAMAGE, this.getEmptyShellDamage());
 	}
 
 	@Override
@@ -169,6 +175,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		this.setRoarTimer(compound.getInteger(TAG_ROAR_TIMER));
 		this.setCooldownTimer(compound.getInteger(TAG_COOLDOWN_TIMER));
 		this.setEmptyShell(compound.getBoolean(TAG_EMPTY_SHELL));
+		this.setEmptyShellDamage(compound.getInteger(TAG_EMPTY_SHELL_DAMAGE));
 	}
 
 	@Override
@@ -282,12 +289,32 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	@Override
 	public boolean isEntityInvulnerable(DamageSource source)
 	{
-		return (super.isEntityInvulnerable(source) || source.isExplosion() || (this.getActionStatus() == ActionStatus.ROAR) || this.isEmptyShell());
+		return (super.isEntityInvulnerable(source) || source.isExplosion() || (this.getActionStatus() == ActionStatus.ROAR));
 	}
 
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount)
 	{
+		if (this.isEmptyShell())
+		{
+			this.growEmptyShellDamage(1);
+
+			for (int k = 0; k < 20; ++k)
+			{
+				double d2 = this.rand.nextGaussian() * 0.02D;
+				double d0 = this.rand.nextGaussian() * 0.02D;
+				double d1 = this.rand.nextGaussian() * 0.02D;
+				this.world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, this.posX + (double) (this.rand.nextFloat() * this.width * 2.0F) - (double) this.width, this.posY + (double) (this.rand.nextFloat() * this.height), this.posZ + (double) (this.rand.nextFloat() * this.width * 2.0F) - (double) this.width, d2, d0, d1);
+			}
+
+			if (this.isEmptyShellBreak() && !this.world.isRemote)
+			{
+				this.setDead();
+			}
+
+			return false;
+		}
+
 		this.growAngerAmount((int) amount);
 
 		return super.attackEntityFrom(source, amount);
@@ -570,6 +597,12 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	@Override
 	public void onLivingUpdate()
 	{
+		if (this.isEmptyShell())
+		{
+			this.rotationYaw = this.prevRotationYaw;
+			this.rotationPitch = this.prevRotationPitch;
+		}
+
 		super.onLivingUpdate();
 
 		if (!this.onGround && (this.motionY < 0.0D))
@@ -907,18 +940,42 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	public EntityDamascus getEmptyShell()
 	{
 		EntityDamascus emptyShell = new EntityDamascus(this.getEntityWorld());
-		NBTTagCompound nbt = new NBTTagCompound();
-
-		this.writeEntityToNBT(nbt);
-		emptyShell.readEntityFromNBT(nbt);
 
 		emptyShell.setEmptyShell(true);
 		emptyShell.setNoAI(true);
 		emptyShell.setSilent(true);
-
 		emptyShell.setPositionAndRotation(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
 
 		return emptyShell;
+	}
+
+	public int getEmptyShellDamage()
+	{
+		return this.getDataManager().get(EMPTY_SHELL_DAMAGE).byteValue();
+	}
+
+	public void setEmptyShellDamage(int amount)
+	{
+		amount = Math.max(amount, 0);
+
+		this.getDataManager().set(EMPTY_SHELL_DAMAGE, amount);
+	}
+
+	public void growEmptyShellDamage(int amount)
+	{
+		this.setEmptyShellDamage((this.getEmptyShellDamage() + amount));
+	}
+
+	public boolean isEmptyShellBreak()
+	{
+		int amount = this.getEmptyShellDamage();
+
+		if (LIMIT_EMPTY_SHELL_DAMAGE < amount)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	// TODO /* ======================================== MOD START =====================================*/

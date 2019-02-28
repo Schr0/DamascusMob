@@ -527,6 +527,49 @@ public class ModelDamascus extends ModelBase
 
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 
+		if (entityIn instanceof EntityDamascus)
+		{
+			EntityDamascus damascus = (EntityDamascus) entityIn;
+
+			if (damascus.isEmptyShell())
+			{
+				int damage = damascus.getEmptyShellDamage();
+
+				if (1 <= damage)
+				{
+					this.armL1.showModel = false;
+				}
+
+				if (2 <= damage)
+				{
+					this.armR1.showModel = false;
+				}
+
+				if (3 <= damage)
+				{
+					this.head.showModel = false;
+				}
+
+				if (4 <= damage)
+				{
+					this.body.showModel = false;
+				}
+
+				if (5 <= damage)
+				{
+					this.tail1.showModel = false;
+				}
+			}
+			else
+			{
+				this.armL1.showModel = true;
+				this.armR1.showModel = true;
+				this.head.showModel = true;
+				this.body.showModel = true;
+				this.tail1.showModel = true;
+			}
+		}
+
 		if (this.isChild)
 		{
 			GL11.glPushMatrix();
