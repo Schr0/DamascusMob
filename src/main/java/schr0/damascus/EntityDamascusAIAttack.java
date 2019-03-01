@@ -144,7 +144,7 @@ public class EntityDamascusAIAttack extends EntityDamascusAI
 				}
 				else
 				{
-					if (distance <= (double) this.attackDistance)
+					if (distance < (double) this.attackDistance)
 					{
 						this.getAIOwner().setPositionAndUpdate(this.attackTarget.posX, this.attackTarget.posY, this.attackTarget.posZ);
 

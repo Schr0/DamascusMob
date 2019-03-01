@@ -10,9 +10,9 @@ public class EntityDamascusAIEat extends EntityDamascusAI
 {
 
 	private static final double SEARCH_POS_XYZ = 8;
-	private static final int EAT_TIME = (3 * 20);
+	private static final int EATTING_TIME = (3 * 20);
 	private BlockPos targetBlockPos;
-	private int eatingTime;
+	private int eatTime;
 
 	public EntityDamascusAIEat(EntityDamascus entityDamascus)
 	{
@@ -22,13 +22,17 @@ public class EntityDamascusAIEat extends EntityDamascusAI
 	@Override
 	public boolean shouldExecute()
 	{
-		if (!this.getAIOwner().isSatiety())
+		if (this.getAIOwner().isSatiety())
+		{
+			return false;
+		}
+		else
 		{
 			this.targetBlockPos = this.getEatableBlockPos();
 
 			if (this.targetBlockPos != BlockPos.ORIGIN)
 			{
-				this.eatingTime = -1;
+				this.eatTime = EATTING_TIME;
 
 				return true;
 			}
@@ -40,12 +44,14 @@ public class EntityDamascusAIEat extends EntityDamascusAI
 	@Override
 	public boolean shouldContinueExecuting()
 	{
-		if (!this.getAIOwner().isSatiety())
+		if (this.getAIOwner().isSatiety())
+		{
+			return false;
+		}
+		else
 		{
 			return this.isEatableBlock(this.targetBlockPos);
 		}
-
-		return false;
 	}
 
 	public void updateTask()
@@ -59,9 +65,9 @@ public class EntityDamascusAIEat extends EntityDamascusAI
 		{
 			this.getAIOwner().setActionStatus(ActionStatus.EAT);
 
-			++this.eatingTime;
+			--this.eatTime;
 
-			if (EAT_TIME < this.eatingTime)
+			if (this.eatTime < 0)
 			{
 				this.getAIOwner().setActionStatus(ActionStatus.IDLE);
 
@@ -73,7 +79,7 @@ public class EntityDamascusAIEat extends EntityDamascusAI
 			}
 			else
 			{
-				if ((5 < this.eatingTime) && (this.eatingTime % 10 == 0))
+				if (this.eatTime % 10 == 0)
 				{
 					this.getWorld().playEvent(2001, this.targetBlockPos, Block.getStateId(this.getWorld().getBlockState(this.targetBlockPos)));
 				}

@@ -38,7 +38,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.common.FMLLog;
 
 public class EntityDamascus extends EntityTameable implements IDamascusMob, IRangedAttackMob, IJumpingMount
 {
@@ -193,6 +192,11 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	@Override
 	protected SoundEvent getAmbientSound()
 	{
+		if (this.isSleepTime())
+		{
+			return null;
+		}
+
 		return SoundEvents.ENTITY_ENDERDRAGON_AMBIENT;
 	}
 
@@ -214,7 +218,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		this.playSound(SoundEvents.ENTITY_COW_STEP, 0.15F, 1.0F);
 	}
 
-	@Nullable
+	@Override
 	protected ResourceLocation getLootTable()
 	{
 		return null;
@@ -249,7 +253,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 			{
 				((EntityLivingBase) entityIn).knockBack(this, 2.0F, (double) MathHelper.sin(this.rotationYaw * 0.017453292F), (double) (-MathHelper.cos(this.rotationYaw * 0.017453292F)));
 
-				entityIn.motionY += 1.25D;
+				entityIn.motionY += 1.05D;
 			}
 		}
 
@@ -601,6 +605,8 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		{
 			this.rotationYaw = this.prevRotationYaw;
 			this.rotationPitch = this.prevRotationPitch;
+
+			return;
 		}
 
 		super.onLivingUpdate();
@@ -612,7 +618,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 
 		if (!this.getEntityWorld().isRemote)
 		{
-			FMLLog.info("Status : %d", this.getActionStatus().getNumber());
+			// FMLLog.info("Status : %d", this.getActionStatus().getNumber());
 
 			if (this.isAnger())
 			{

@@ -713,6 +713,7 @@ public class ModelDamascus extends ModelBase
 			for (ModelRenderer neckModel : this.neckModels)
 			{
 				neckModel.rotateAngleX = eatingAngleX;
+				neckModel.rotateAngleY = 0.0F;
 			}
 
 			this.headTop.rotateAngleX = -eatMotion;
@@ -733,6 +734,7 @@ public class ModelDamascus extends ModelBase
 			for (ModelRenderer neckModel : this.neckModels)
 			{
 				neckModel.rotateAngleX = sleepingUpperBodyAngleX;
+				neckModel.rotateAngleY = 0.0F;
 			}
 
 			this.armR1.rotateAngleZ = sleepingArmRAngleZ;
