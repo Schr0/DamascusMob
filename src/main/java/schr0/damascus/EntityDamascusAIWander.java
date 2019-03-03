@@ -1,6 +1,7 @@
 package schr0.damascus;
 
 import net.minecraft.entity.ai.EntityAIWanderAvoidWater;
+import net.minecraft.util.math.Vec3d;
 
 public class EntityDamascusAIWander extends EntityAIWanderAvoidWater
 {
@@ -12,6 +13,7 @@ public class EntityDamascusAIWander extends EntityAIWanderAvoidWater
 		super(entityDamascus, 1.0D);
 
 		this.entityDamascus = entityDamascus;
+		this.setExecutionChance(80);
 	}
 
 	@Override
@@ -28,6 +30,13 @@ public class EntityDamascusAIWander extends EntityAIWanderAvoidWater
 		super.updateTask();
 
 		this.entityDamascus.setActionStatus(ActionStatus.WONDER);
+
+		Vec3d vec3d = this.entityDamascus.getNavigator().getPath().getCurrentPos();
+
+		if (vec3d != vec3d.ZERO)
+		{
+			this.entityDamascus.getLookHelper().setLookPosition(vec3d.x, vec3d.y, vec3d.z, (float) this.entityDamascus.getHorizontalFaceSpeed(), (float) this.entityDamascus.getVerticalFaceSpeed());
+		}
 	}
 
 }

@@ -16,6 +16,17 @@ public class EntityDamascusAIRoar extends EntityDamascusAI
 		return this.getAIOwner().isRoarTime();
 	}
 
+	@Override
+	public void startExecuting()
+	{
+		super.startExecuting();
+
+		EntityDamascusMiasma entityDamascusMiasma = new EntityDamascusMiasma(this.getWorld(), this.getAIOwner().posX, this.getAIOwner().posY, this.getAIOwner().posZ, this.getAIOwner());
+
+		this.getWorld().spawnEntity(entityDamascusMiasma);
+	}
+
+	@Override
 	public void updateTask()
 	{
 		this.getAIOwner().setActionStatus(ActionStatus.ROAR);
@@ -24,14 +35,7 @@ public class EntityDamascusAIRoar extends EntityDamascusAI
 
 		int roarTimer = this.getAIOwner().getRoarTimer();
 
-		if (roarTimer == 20)
-		{
-			EntityDamascusMiasma entityDamascusMiasma = new EntityDamascusMiasma(this.getWorld(), this.getAIOwner().posX, this.getAIOwner().posY, this.getAIOwner().posZ, this.getAIOwner());
-
-			this.getWorld().spawnEntity(entityDamascusMiasma);
-		}
-
-		if (TIME_START < roarTimer)
+		if (roarTimer < (9 * 20))
 		{
 			if (roarTimer % 10 == 0)
 			{

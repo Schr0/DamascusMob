@@ -21,6 +21,7 @@ public class RenderDamascusFireball extends Render<EntityDamascusFireball>
 		this.shadowSize = 0.5F;
 	}
 
+	@Override
 	public void doRender(EntityDamascusFireball entity, double x, double y, double z, float entityYaw, float partialTicks)
 	{
 		GlStateManager.pushMatrix();

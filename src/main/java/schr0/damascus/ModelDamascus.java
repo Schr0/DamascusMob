@@ -520,6 +520,8 @@ public class ModelDamascus extends ModelBase
 		this.tailModels.add(this.tail8);
 	}
 
+	// TODO /* ======================================== render() START =====================================*/
+
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
@@ -586,7 +588,7 @@ public class ModelDamascus extends ModelBase
 		}
 	}
 
-	// TODO /* ======================================== setRotationAngles START =====================================*/
+	// TODO /* ======================================== setRotationAngles() START =====================================*/
 
 	@Override
 	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn)
@@ -806,7 +808,7 @@ public class ModelDamascus extends ModelBase
 			}
 		}
 
-		if (damascus.isOwnerAttacking())
+		if (damascus.isRaidingOnwerAttack())
 		{
 			float ownerAttackingHeadTopAngleX = -0.17453292519943295F;
 			float ownerAttackingJawAngleX = 0.9599310885968813F;
@@ -826,7 +828,7 @@ public class ModelDamascus extends ModelBase
 
 	// TODO /* ======================================== MOD START =====================================*/
 
-	public void initModelsRotate()
+	private void initModelsRotate()
 	{
 		this.armL1.setRotationPoint(4.0F, -2.0F, 0.0F);
 		this.armL2.setRotationPoint(0.0F, 6.0F, 0.0F);

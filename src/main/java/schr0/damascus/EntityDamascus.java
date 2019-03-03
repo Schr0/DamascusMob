@@ -2,8 +2,6 @@ package schr0.damascus;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -42,17 +40,17 @@ import net.minecraftforge.event.ForgeEventFactory;
 public class EntityDamascus extends EntityTameable implements IDamascusMob, IRangedAttackMob, IJumpingMount
 {
 
+	private static final double MAX_HEALTH = 200.0D;
+	private static final double MOVEMENT_SPEED = 0.25D;
+	private static final double ATTACK_DAMAGE = 8.0D;
 	private static final float SIZE_WIDTH = 1.5F;
 	private static final float SIZE_HEIGHT = 2.5F;
-	private static final double ENTITY_HEALTH = 200.0D;
-	private static final double ENTITY_MOVEMENT_SPEED = 0.25D;
-	private static final double ENTITY_ATTACK_DAMAGE = 8.0D;
 	private static final int LIMIT_HUNGER_AMOUNT = 64;
 	private static final int LIMIT_ANGER_AMOUNT = 20;
 	private static final int LIMIT_SLEEP_TIMER = ((1 * 60) * 20);
 	private static final int LIMIT_ROAR_TIMER = (10 * 20);
 	private static final int LIMIT_COOLDOWN_TIMER = ((1 * 60) * 20);
-	private static final int LIMIT_EMPTY_SHELL_DAMAGE = 5;
+	private static final int LIMIT_EMPTYSHELL_DAMAGE = 5;
 
 	private static final DataParameter<Byte> ACTION_STATUS = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
 	private static final DataParameter<Byte> ATTACK_TYPE = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
@@ -61,8 +59,8 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	private static final DataParameter<Integer> SLEEP_TIMER = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> ROAR_TIMER = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 	private static final DataParameter<Integer> COOLDOWN_TIMER = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
-	private static final DataParameter<Byte> EMPTY_SHELL = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
-	private static final DataParameter<Integer> EMPTY_SHELL_DAMAGE = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
+	private static final DataParameter<Byte> EMPTYSHELL = EntityDataManager.<Byte> createKey(EntityDamascus.class, DataSerializers.BYTE);
+	private static final DataParameter<Integer> EMPTYSHELL_DAMAGE = EntityDataManager.<Integer> createKey(EntityDamascus.class, DataSerializers.VARINT);
 
 	private static final String TAG = DamascusMob.MOD_ID + ".";
 	private static final String TAG_ANGER_AMOUNT = TAG + "anger_amount";
@@ -70,8 +68,8 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	private static final String TAG_SLEEP_TIMER = TAG + "sleep_timer";
 	private static final String TAG_ROAR_TIMER = TAG + "roar_timer";
 	private static final String TAG_COOLDOWN_TIMER = TAG + "cooldown_timer";
-	private static final String TAG_EMPTY_SHELL = TAG + "empty_shell";
-	private static final String TAG_EMPTY_SHELL_DAMAGE = TAG + "empty_shell_damage";
+	private static final String TAG_EMPTYSHELL = TAG + "emptyshell";
+	private static final String TAG_EMPTYSHELL_DAMAGE = TAG + "emptyshell_damage";
 
 	private boolean isRidingJump;
 	private float ridingJumpPower;
@@ -102,8 +100,8 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		this.getDataManager().register(SLEEP_TIMER, Integer.valueOf(0));
 		this.getDataManager().register(ROAR_TIMER, Integer.valueOf(0));
 		this.getDataManager().register(COOLDOWN_TIMER, Integer.valueOf(0));
-		this.getDataManager().register(EMPTY_SHELL, Byte.valueOf((byte) 0));
-		this.getDataManager().register(EMPTY_SHELL_DAMAGE, Integer.valueOf(0));
+		this.getDataManager().register(EMPTYSHELL, Byte.valueOf((byte) 0));
+		this.getDataManager().register(EMPTYSHELL_DAMAGE, Integer.valueOf(0));
 	}
 
 	@Override
@@ -111,9 +109,9 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	{
 		super.applyEntityAttributes();
 
-		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(ENTITY_HEALTH);
-		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(ENTITY_MOVEMENT_SPEED);
-		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(ENTITY_ATTACK_DAMAGE);
+		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(MAX_HEALTH);
+		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(MOVEMENT_SPEED);
+		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(ATTACK_DAMAGE);
 	}
 
 	@Override
@@ -159,8 +157,8 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		compound.setInteger(TAG_SLEEP_TIMER, this.getSleepTimer());
 		compound.setInteger(TAG_ROAR_TIMER, this.getRoarTimer());
 		compound.setInteger(TAG_COOLDOWN_TIMER, this.getCooldownTimer());
-		compound.setBoolean(TAG_EMPTY_SHELL, this.isEmptyShell());
-		compound.setInteger(TAG_EMPTY_SHELL_DAMAGE, this.getEmptyShellDamage());
+		compound.setBoolean(TAG_EMPTYSHELL, this.isEmptyShell());
+		compound.setInteger(TAG_EMPTYSHELL_DAMAGE, this.getEmptyShellDamage());
 	}
 
 	@Override
@@ -173,8 +171,8 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		this.setSleepTimer(compound.getInteger(TAG_SLEEP_TIMER));
 		this.setRoarTimer(compound.getInteger(TAG_ROAR_TIMER));
 		this.setCooldownTimer(compound.getInteger(TAG_COOLDOWN_TIMER));
-		this.setEmptyShell(compound.getBoolean(TAG_EMPTY_SHELL));
-		this.setEmptyShellDamage(compound.getInteger(TAG_EMPTY_SHELL_DAMAGE));
+		this.setEmptyShell(compound.getBoolean(TAG_EMPTYSHELL));
+		this.setEmptyShellDamage(compound.getInteger(TAG_EMPTYSHELL_DAMAGE));
 	}
 
 	@Override
@@ -194,7 +192,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	{
 		if (this.isSleepTime())
 		{
-			return null;
+			return (SoundEvent) null;
 		}
 
 		return SoundEvents.ENTITY_ENDERDRAGON_AMBIENT;
@@ -253,7 +251,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 			{
 				((EntityLivingBase) entityIn).knockBack(this, 2.0F, (double) MathHelper.sin(this.rotationYaw * 0.017453292F), (double) (-MathHelper.cos(this.rotationYaw * 0.017453292F)));
 
-				entityIn.motionY += 1.05D;
+				entityIn.motionY += 0.50D;
 			}
 		}
 
@@ -369,7 +367,6 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	}
 
 	@Override
-	@Nullable
 	public Entity getControllingPassenger()
 	{
 		if (this.getPassengers().isEmpty())
@@ -548,13 +545,13 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 				if (stackHeldItem.getItem() instanceof ItemBlock)
 				{
 					ItemBlock itemBlock = (ItemBlock) stackHeldItem.getItem();
-					EatableOre eatableBlockOre = EatableOre.byBlock(itemBlock.getBlock());
+					EatableOre eatableOre = EatableOre.byBlock(itemBlock.getBlock());
 
-					if (eatableBlockOre != EatableOre.NONE)
+					if (eatableOre != EatableOre.NONE)
 					{
-						boolean success = (this.getRNG().nextInt(18 - eatableBlockOre.getFoodLevel()) == 0);
+						boolean success = (this.getRNG().nextInt(18 - eatableOre.getFoodLevel()) == 0);
 
-						this.growHugerAmount(eatableBlockOre.getFoodLevel());
+						this.growHugerAmount(eatableOre.getFoodLevel());
 
 						if (success && !ForgeEventFactory.onAnimalTame(this, player))
 						{
@@ -584,6 +581,11 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		if (this.isNotControlling())
 		{
 			passenger.dismountRidingEntity();
+		}
+
+		if (this.isRaidingOnwerAttack())
+		{
+			DamascusMobParticles.spawnParticleRangedAttacking(this);
 		}
 	}
 
@@ -618,8 +620,6 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 
 		if (!this.getEntityWorld().isRemote)
 		{
-			// FMLLog.info("Status : %d", this.getActionStatus().getNumber());
-
 			if (this.isAnger())
 			{
 				if (this.getAttackTarget() != null)
@@ -647,11 +647,6 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 				{
 					this.playSound(SoundEvents.ENTITY_ENDERDRAGON_FLAP, 0.25F, 1.0F);
 				}
-			}
-
-			if (this.isOwnerAttacking())
-			{
-				DamascusMobParticles.spawnParticleRangedAttacking(this);
 			}
 		}
 	}
@@ -926,20 +921,20 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 
 	public boolean isEmptyShell()
 	{
-		return (this.getDataManager().get(EMPTY_SHELL).byteValue() == 1);
+		return (this.getDataManager().get(EMPTYSHELL).byteValue() == 1);
 	}
 
 	public void setEmptyShell(boolean isEmptyShell)
 	{
-		byte b0 = ((Byte) this.getDataManager().get(EMPTY_SHELL)).byteValue();
+		byte b0 = ((Byte) this.getDataManager().get(EMPTYSHELL)).byteValue();
 
 		if (isEmptyShell)
 		{
-			this.getDataManager().set(EMPTY_SHELL, Byte.valueOf((byte) 1));
+			this.getDataManager().set(EMPTYSHELL, Byte.valueOf((byte) 1));
 		}
 		else
 		{
-			this.getDataManager().set(EMPTY_SHELL, Byte.valueOf((byte) 0));
+			this.getDataManager().set(EMPTYSHELL, Byte.valueOf((byte) 0));
 		}
 	}
 
@@ -957,14 +952,14 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 
 	public int getEmptyShellDamage()
 	{
-		return this.getDataManager().get(EMPTY_SHELL_DAMAGE).byteValue();
+		return this.getDataManager().get(EMPTYSHELL_DAMAGE).byteValue();
 	}
 
 	public void setEmptyShellDamage(int amount)
 	{
 		amount = Math.max(amount, 0);
 
-		this.getDataManager().set(EMPTY_SHELL_DAMAGE, amount);
+		this.getDataManager().set(EMPTYSHELL_DAMAGE, amount);
 	}
 
 	public void growEmptyShellDamage(int amount)
@@ -976,7 +971,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	{
 		int amount = this.getEmptyShellDamage();
 
-		if (LIMIT_EMPTY_SHELL_DAMAGE < amount)
+		if (LIMIT_EMPTYSHELL_DAMAGE < amount)
 		{
 			return true;
 		}
@@ -1054,7 +1049,7 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		return false;
 	}
 
-	public boolean isOwnerAttacking()
+	public boolean isRaidingOnwerAttack()
 	{
 		if (this.isRaidingOnwer())
 		{

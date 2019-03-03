@@ -52,6 +52,13 @@ public class EntityDamascusAIAttack extends EntityDamascusAI
 				this.attackDistance = RANGED_ATTACK_DISTANCE;
 			}
 
+			if (this.getAIOwner().getHealth() < (this.getAIOwner().getMaxHealth() / 2))
+			{
+				this.getAIOwner().setAttackType(AttackType.MELEE);
+
+				this.attackDistance = MELEE_ATTACK_DISTANCE;
+			}
+
 			return true;
 		}
 
