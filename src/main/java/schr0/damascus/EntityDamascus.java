@@ -144,7 +144,6 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 		this.tasks.addTask(7, aiWatchClosest);
 
 		this.targetTasks.addTask(1, new EntityDamascusAIHurtByTarget(this));
-		// this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityCow.class, false));
 	}
 
 	@Override
@@ -297,9 +296,19 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	@Override
 	public boolean attackEntityFrom(DamageSource source, float amount)
 	{
+		boolean isServerWorld = !this.getEntityWorld().isRemote;
+
 		if (this.isEmptyShell())
 		{
-			this.growEmptyShellDamage(1);
+			if (isServerWorld)
+			{
+				this.growEmptyShellDamage(1);
+
+				if (this.isEmptyShellBreak())
+				{
+					this.setDead();
+				}
+			}
 
 			for (int k = 0; k < 20; ++k)
 			{
@@ -309,15 +318,13 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 				this.world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, this.posX + (double) (this.rand.nextFloat() * this.width * 2.0F) - (double) this.width, this.posY + (double) (this.rand.nextFloat() * this.height), this.posZ + (double) (this.rand.nextFloat() * this.width * 2.0F) - (double) this.width, d2, d0, d1);
 			}
 
-			if (this.isEmptyShellBreak() && !this.world.isRemote)
-			{
-				this.setDead();
-			}
-
 			return false;
 		}
 
-		this.growAngerAmount((int) amount);
+		if (isServerWorld)
+		{
+			this.growAngerAmount((int) amount);
+		}
 
 		return super.attackEntityFrom(source, amount);
 	}
@@ -343,18 +350,16 @@ public class EntityDamascus extends EntityTameable implements IDamascusMob, IRan
 	@Override
 	public boolean isOwner(EntityLivingBase entityIn)
 	{
-		if (!(entityIn instanceof EntityPlayer))
+		if (entityIn instanceof EntityPlayer)
 		{
-			return false;
-		}
+			EntityPlayer entityPlayer = (EntityPlayer) entityIn;
+			UUID uuid = entityPlayer.getUniqueID();
+			UUID uuidOwner = this.getOwnerId();
 
-		EntityPlayer entityPlayer = (EntityPlayer) entityIn;
-		UUID uuid = entityPlayer.getUniqueID();
-		UUID uuidOwner = this.getOwnerId();
-
-		if ((uuid != null && uuidOwner != null) && uuid.equals(uuidOwner))
-		{
-			return true;
+			if ((uuid != null && uuidOwner != null) && uuid.equals(uuidOwner))
+			{
+				return true;
+			}
 		}
 
 		return false;

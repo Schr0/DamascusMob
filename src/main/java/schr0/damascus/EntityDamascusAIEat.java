@@ -104,9 +104,19 @@ public class EntityDamascusAIEat extends EntityDamascusAI
 
 		if (EatableOre.byBlock(block) != EatableOre.NONE)
 		{
-			if (this.getWorld().isAirBlock(pos.up(1)) && this.getWorld().isAirBlock(pos.up(2)) && this.getWorld().isAirBlock(pos.up(3)))
+			int airBlock = 0;
+
+			for (BlockPos aroundBlockPos : BlockPos.getAllInBox(pos.add(-1, 0, -1), pos.add(1, 0, 1)))
 			{
-				return this.getAIOwner().canBlockBeSeen(pos);
+				if (this.getWorld().isAirBlock(aroundBlockPos.up(1)) && this.getWorld().isAirBlock(aroundBlockPos.up(2)) && this.getWorld().isAirBlock(aroundBlockPos.up(3)))
+				{
+					++airBlock;
+				}
+
+				if (9 <= airBlock)
+				{
+					return this.getAIOwner().canBlockBeSeen(pos);
+				}
 			}
 		}
 

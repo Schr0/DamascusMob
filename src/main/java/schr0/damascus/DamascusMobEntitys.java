@@ -1,10 +1,15 @@
 package schr0.damascus;
 
+import java.util.Iterator;
+
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderAreaEffectCloud;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.biome.Biome;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -34,6 +39,32 @@ public class DamascusMobEntitys
 		registerEntity(EntityDamascus.class, NAME_DAMASCUS, ID_DAMASCUS, DamascusMob.instance, TRACKING_RANGE, UPDATE_FREQUENCY, SENDS_VELOCITY_UPDATES, EGG_PRIMARY_DAMASCUS, EGG_SECONDARY_DAMASCUS);
 		registerEntity(EntityDamascusFireball.class, NAME_DAMASCUS_FIREBALL, ID_DAMASCUS_FIREBALL, DamascusMob.instance, TRACKING_RANGE, UPDATE_FREQUENCY, SENDS_VELOCITY_UPDATES);
 		registerEntity(EntityDamascusMiasma.class, NAME_DAMASCUS_MIASMA, ID_DAMASCUS_MIASMA, DamascusMob.instance, TRACKING_RANGE, UPDATE_FREQUENCY, SENDS_VELOCITY_UPDATES);
+
+		Iterator<Biome> biomes = Biome.REGISTRY.iterator();
+		while (biomes.hasNext())
+		{
+			Biome biome = biomes.next();
+
+			if (canSpawn(biome))
+			{
+				EntityRegistry.addSpawn(EntityDamascus.class, 6, 2, 6, EnumCreatureType.CREATURE, biome);
+			}
+		}
+	}
+
+	private boolean canSpawn(Biome biome)
+	{
+		if (biome == null)
+		{
+			return false;
+		}
+
+		if (BiomeDictionary.hasType(biome, BiomeDictionary.Type.MOUNTAIN))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	@SideOnly(Side.CLIENT)
